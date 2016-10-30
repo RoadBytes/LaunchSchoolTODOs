@@ -24,18 +24,18 @@ helpers do
   end
 
   def sorted_lists(lists)
-    complete_lists, incomplete_lists  = lists.partition { |list| list_completed? list }
+    complete, incomplete = lists.partition { |list| list_completed? list }
 
-    incomplete_lists.each { |list| yield(lists.index(list), list) }
-    complete_lists.each { |list| yield(lists.index(list), list) }
+    incomplete.each { |list| yield(lists.index(list), list) }
+    complete.each { |list| yield(lists.index(list), list) }
   end
 
   def sorted_todos(list)
     todos = list[:todos]
-    complete_todos, incomplete_todos = todos.partition { |todo| todo[:completed] }
+    complete, incomplete = todos.partition { |todo| todo[:completed] }
 
-    incomplete_todos.each { |todo| yield(todos.index(todo), todo) }
-    complete_todos.each { |todo| yield(todos.index(todo), todo) }
+    incomplete.each { |todo| yield(todos.index(todo), todo) }
+    complete.each { |todo| yield(todos.index(todo), todo) }
   end
 end
 
