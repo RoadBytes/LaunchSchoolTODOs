@@ -4,7 +4,7 @@
   <a class='list' href='/lists'>All Lists</a>
 <% end %>
 
-<section id="todos">
+<section id="todos" class='<%= 'complete' if list_completed? @list %>'>
     <header>
       <h2><%= @list[:name] %></h2>
       <ul>
@@ -19,7 +19,7 @@
     </header>
 
   <ul>
-    <% @list[:todos].each_with_index do |todo, index| %>
+    <% sorted_todos(@list) do |index, todo| %>
       <li class='<%= 'complete' if todo[:completed] %>'>
 
         <form action='/lists/<%= @list_id %>/todos/<%= index %>/completed' method='post' class='check'>

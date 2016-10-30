@@ -3,11 +3,11 @@
 <% end %>
 
 <ul id='lists' >
-  <% @lists.each_with_index do |list, index| %>
+  <% sorted_lists(@lists) do |index, list| %>
     <a href='/lists/<%= index %>'>
-      <li>
+      <li class='<%= 'complete' if list_completed? list %>'>
         <h2><%= list[:name] %></h2>
-        <p><%= list[:todos].size %></p>
+        <p><%= "#{todos_not_completed_size(list)}/#{todos_count(list)}" %></p>
       </li>
     </a>
   <% end %>

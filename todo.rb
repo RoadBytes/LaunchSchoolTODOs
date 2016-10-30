@@ -10,6 +10,35 @@ configure do
   set    :session_secret, 'secret'
 end
 
+helpers do
+  def todos_count(list)
+    list[:todos].size
+  end
+
+  def list_completed?(list)
+    todos_not_completed_size(list) == 0 && todos_count(list) > 0
+  end
+
+  def todos_not_completed_size(list)
+    list[:todos].select { |todo| todo[:completed] == false }.size
+  end
+
+  def sorted_lists(lists)
+    complete_lists, incomplete_lists  = lists.partition { |list| list_completed? list }
+
+    incomplete_lists.each { |list| yield(lists.index(list), list) }
+    complete_lists.each { |list| yield(lists.index(list), list) }
+  end
+
+  def sorted_todos(list)
+    todos = list[:todos]
+    complete_todos, incomplete_todos = todos.partition { |todo| todo[:completed] }
+
+    incomplete_todos.each { |todo| yield(todos.index(todo), todo) }
+    complete_todos.each { |todo| yield(todos.index(todo), todo) }
+  end
+end
+
 before do
   session[:lists] ||= []
 end
