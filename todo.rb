@@ -33,6 +33,12 @@ def error_for_list_name(name)
   end
 end
 
+def error_for_todo_name(name)
+  if !(1..100).cover? name.size
+    'TODO must be 1 to 100 chars long'
+  end
+end
+
 def error_for_edit_list_name(old_name, new_name)
   # take out list with name first
   other_lists = session[:lists].select { |list| list[:name] != old_name }
@@ -48,7 +54,7 @@ get '/lists/new' do
   erb :lists_new
 end
 
-# Create
+# List Create
 post '/lists' do
   name = params[:list_name].strip
 
@@ -65,7 +71,7 @@ post '/lists' do
   end
 end
 
-# List Delete
+# List Destroy
 post '/lists/:id/delete' do
   id = params[:id].to_i
   session[:lists].delete_at(id)
@@ -76,8 +82,8 @@ end
 
 # List Show
 get '/lists/:id' do
-  @id = params[:id].to_i
-  @list = session[:lists][@id]
+  @list_id = params[:id].to_i
+  @list = session[:lists][@list_id]
 
   erb :list
 end
@@ -112,11 +118,32 @@ post '/lists/:id' do
 end
 
 # Todo Create
-post '/lists/:id/todo' do
-  @name = params[:name]
-  @todo = params[:todo]
-  @list = session[:lists].find { |list| list[:name] == @name }
-  @list[:todos] << @todo
+post '/lists/:list_id/todos' do
+  @list_id = params[:list_id].to_i
+  @todo    = params[:todo].strip
+  @list    = session[:lists][@list_id]
 
-  erb :list
+  error = error_for_todo_name(@todo)
+  if error
+    session[:error] = error
+
+    erb :list
+  else
+    @list[:todos] << { name: @todo, completed: false }
+    session[:success] = 'TODO Added'
+
+    redirect "lists/#{@list_id}"
+  end
+end
+
+# Todo Destroy
+post '/lists/:list_id/todos/:todo_id/delete' do
+  @list_id = params[:list_id].to_i
+  todo_id = params[:todo_id].to_i
+  @list    = session[:lists][@list_id]
+
+  @list[:todos].delete_at(todo_id)
+  session[:success] = 'TODO Deleted'
+
+  redirect "/lists/#{@list_id}"
 end
