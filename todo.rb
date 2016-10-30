@@ -34,9 +34,7 @@ def error_for_list_name(name)
 end
 
 def error_for_todo_name(name)
-  if !(1..100).cover? name.size
-    'TODO must be 1 to 100 chars long'
-  end
+  'TODO must be 1 to 100 chars long' unless (1..100).cover? name.size
 end
 
 def error_for_edit_list_name(old_name, new_name)
@@ -56,7 +54,7 @@ end
 
 # List Create
 post '/lists' do
-  name = params[:list_name].strip
+  name  = params[:list_name].strip
 
   error = error_for_list_name(name)
   if error
@@ -83,7 +81,7 @@ end
 # List Show
 get '/lists/:id' do
   @list_id = params[:id].to_i
-  @list = session[:lists][@list_id]
+  @list    = session[:lists][@list_id]
 
   erb :list
 end
@@ -98,9 +96,8 @@ end
 
 # List Update
 post '/lists/:id' do
-  @id   = params[:id].to_i
-  @list = session[:lists][@id]
-
+  @id       = params[:id].to_i
+  @list     = session[:lists][@id]
   @old_name = @list[:name]
   @new_name = params[:list_name].strip
 
@@ -120,30 +117,55 @@ end
 # Todo Create
 post '/lists/:list_id/todos' do
   @list_id = params[:list_id].to_i
-  @todo    = params[:todo].strip
+  todo     = params[:todo].strip
   @list    = session[:lists][@list_id]
 
-  error = error_for_todo_name(@todo)
+  error = error_for_todo_name(todo)
   if error
     session[:error] = error
 
     erb :list
   else
-    @list[:todos] << { name: @todo, completed: false }
+    @list[:todos] << { name: todo, completed: false }
     session[:success] = 'TODO Added'
 
     redirect "lists/#{@list_id}"
   end
 end
 
+# Todo Completed
+post '/lists/:list_id/todos/:todo_id/completed' do
+  @list_id = params[:list_id].to_i
+  @list    = session[:lists][@list_id]
+  todo_id  = params[:todo_id].to_i
+  todo     = @list[:todos][todo_id]
+  value    = (params[:completed] == 'true')
+
+  todo[:completed] = value
+  session[:success] = "Todo: #{todo[:name]} updated"
+
+  redirect "lists/#{@list_id}"
+end
+
 # Todo Destroy
 post '/lists/:list_id/todos/:todo_id/delete' do
   @list_id = params[:list_id].to_i
-  todo_id = params[:todo_id].to_i
   @list    = session[:lists][@list_id]
+  todo_id  = params[:todo_id].to_i
 
   @list[:todos].delete_at(todo_id)
   session[:success] = 'TODO Deleted'
+
+  redirect "/lists/#{@list_id}"
+end
+
+# Todo All Completed
+post '/lists/:list_id/complete_all' do
+  @list_id = params[:list_id].to_i
+  @list    = session[:lists][@list_id]
+
+  @list[:todos].each { |todo| todo[:completed] = true }
+  session[:success] = 'All Todos completed'
 
   redirect "/lists/#{@list_id}"
 end
