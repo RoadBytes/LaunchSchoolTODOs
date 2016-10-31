@@ -4,31 +4,31 @@
   <a class='list' href='/lists'>All Lists</a>
 <% end %>
 
-<section id="todos" class='<%= 'complete' if list_completed? @list %>'>
+<section id="todos" class='<%== 'complete' if list_completed? @list %>'>
     <header>
       <h2><%= @list[:name] %></h2>
       <ul>
         <li>
-          <form action='/lists/<%= @list_id %>/complete_all' method='post'>
+          <form action='/lists/<%== @list_id %>/complete_all' method='post'>
             <button class='check' type='submit'>Complete All</button>
           </form>
         </li>
-        <li><a class='edit' href="/lists/<%= @list_id %>/edit">Edit List</a>
+        <li><a class='edit' href="/lists/<%== @list_id %>/edit">Edit List</a>
         </li>
       </ul>
     </header>
 
   <ul>
     <% sorted_todos(@list) do |index, todo| %>
-      <li class='<%= 'complete' if todo[:completed] %>'>
+      <li class='<%== 'complete' if todo[:completed] %>'>
 
-        <form action='/lists/<%= @list_id %>/todos/<%= index %>/completed' method='post' class='check'>
-          <input type='hidden' name='completed' value='<%= !todo[:completed] %>'/>
+        <form action='/lists/<%== @list_id %>/todos/<%== index %>/completed' method='post' class='check'>
+          <input type='hidden' name='completed' value='<%== !todo[:completed] %>'/>
           <button type='submit'>Completed</button>
         </form>
 
         <h3><%= todo[:name] %></h3>
-        <form action="/lists/<%= @list_id %>/todos/<%= index %>/delete" method="post" class="delete">
+        <form action="/lists/<%== @list_id %>/todos/<%== index %>/delete" method="post" class="delete">
           <button type="submit">Delete</button>
         </form>
       </li>
@@ -36,13 +36,13 @@
   </ul>
 </section>
 
-<form action="/lists/<%= @list_id %>/todos" method="post">
+<form action="/lists/<%== @list_id %>/todos" method="post">
   <dl>
     <dt>
       <label for="todo">Enter a new todo item:</label>
     </dt>
     <dd>
-    <input name="todo" placeholder="Something to do" type="text" value="<%= params[:todo] %>"/>
+    <input name="todo" placeholder="Something to do" type="text" value="<%== params[:todo] %>"/>
     </dd>
   </dl>
   <fieldset class="actions">

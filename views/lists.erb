@@ -4,10 +4,10 @@
 
 <ul id='lists' >
   <% sorted_lists(@lists) do |index, list| %>
-    <a href='/lists/<%= index %>'>
-      <li class='<%= 'complete' if list_completed? list %>'>
+    <a href='/lists/<%== index %>'>
+      <li class='<%== 'complete' if list_completed? list %>'>
         <h2><%= list[:name] %></h2>
-        <p><%= "#{todos_not_completed_size(list)}/#{todos_count(list)}" %></p>
+        <p><%== "#{todos_not_completed_size(list)}/#{todos_count(list)}" %></p>
       </li>
     </a>
   <% end %>

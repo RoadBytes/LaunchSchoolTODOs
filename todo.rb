@@ -76,6 +76,14 @@ def error_for_edit_list_name(old_name, new_name)
   end
 end
 
+def load_list(index)
+  list = session[:lists][index]
+  return list if list
+
+  session[:error] = 'Sorry List does not exist'
+  redirect :lists
+end
+
 # New
 get '/lists/new' do
   erb :lists_new
@@ -110,7 +118,7 @@ end
 # List Show
 get '/lists/:id' do
   @list_id = params[:id].to_i
-  @list    = session[:lists][@list_id]
+  @list    = load_list(@list_id)
 
   erb :list
 end
@@ -118,7 +126,7 @@ end
 # List Edit
 get '/lists/:id/edit' do
   @id   = params[:id].to_i
-  @list = session[:lists][@id]
+  @list = load_list(@id)
 
   erb :list_edit
 end
@@ -126,7 +134,7 @@ end
 # List Update
 post '/lists/:id' do
   @id       = params[:id].to_i
-  @list     = session[:lists][@id]
+  @list     = load_list(@id)
   @old_name = @list[:name]
   @new_name = params[:list_name].strip
 
@@ -147,7 +155,7 @@ end
 post '/lists/:list_id/todos' do
   @list_id = params[:list_id].to_i
   todo     = params[:todo].strip
-  @list    = session[:lists][@list_id]
+  @list    = load_list(@list_id)
 
   error = error_for_todo_name(todo)
   if error
@@ -165,7 +173,7 @@ end
 # Todo Completed
 post '/lists/:list_id/todos/:todo_id/completed' do
   @list_id = params[:list_id].to_i
-  @list    = session[:lists][@list_id]
+  @list    = load_list(@list_id)
   todo_id  = params[:todo_id].to_i
   todo     = @list[:todos][todo_id]
   value    = (params[:completed] == 'true')
@@ -179,7 +187,7 @@ end
 # Todo Destroy
 post '/lists/:list_id/todos/:todo_id/delete' do
   @list_id = params[:list_id].to_i
-  @list    = session[:lists][@list_id]
+  @list    = load_list(@list_id)
   todo_id  = params[:todo_id].to_i
 
   @list[:todos].delete_at(todo_id)
@@ -191,7 +199,7 @@ end
 # Todo All Completed
 post '/lists/:list_id/complete_all' do
   @list_id = params[:list_id].to_i
-  @list    = session[:lists][@list_id]
+  @list    = load_list(@list_id)
 
   @list[:todos].each { |todo| todo[:completed] = true }
   session[:success] = 'All Todos completed'
