@@ -1,6 +1,6 @@
 <section id="todos">
     <header>
-      <h2>Editing "<%= @list[:name] %>"</h2>
+      <h2>Editing "<%== @list[:name] %>"</h2>
       <ul>
         <li>
           <form action="/lists/<%= @id %>/delete" method="post">
@@ -18,7 +18,7 @@
       <label for="list_name">Edit the name for your list:</label>
     </dt>
     <dd>
-      <input name="list_name" placeholder="List Name" type="text" value="<%= params[:list_name] || @list[:name] %>">
+      <input name="list_name" placeholder="List Name" type="text" value="<%== params[:list_name] || @list[:name] %>">
     </dd>
   </dl>
   <fieldset class="actions">
