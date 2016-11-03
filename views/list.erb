@@ -19,16 +19,16 @@
     </header>
 
   <ul>
-    <% sorted_todos(@list) do |index, todo| %>
+    <% sorted_todos(@list) do |todo| %>
       <li class='<%= 'complete' if todo[:completed] %>'>
 
-        <form action='/lists/<%= @list_id %>/todos/<%= index %>/completed' method='post' class='check'>
+        <form action='/lists/<%= @list_id %>/todos/<%= todo[:id] %>/completed' method='post' class='check'>
           <input type='hidden' name='completed' value='<%= !todo[:completed] %>'/>
           <button type='submit'>Completed</button>
         </form>
 
         <h3><%== todo[:name] %></h3>
-        <form action="/lists/<%= @list_id %>/todos/<%= index %>/delete" method="post" class="delete">
+        <form action="/lists/<%= @list_id %>/todos/<%= todo[:id] %>/delete" method="post" class="delete">
           <button type="submit">Delete</button>
         </form>
       </li>
