@@ -34,8 +34,8 @@ helpers do
     todos = list[:todos]
     complete, incomplete = todos.partition { |todo| todo[:completed] }
 
-    incomplete.each { |todo| yield(todos.index(todo), todo) }
-    complete.each { |todo| yield(todos.index(todo), todo) }
+    incomplete.each { |todo| yield(todo) }
+    complete.each { |todo| yield(todo) }
   end
 end
 
@@ -151,6 +151,11 @@ post '/lists/:id' do
   end
 end
 
+def next_id(todos)
+  max_id = todos.map{ |todo| todo[:id] }.max.to_i
+  max_id + 1
+end
+
 # Todo Create
 post '/lists/:list_id/todos' do
   @list_id = params[:list_id].to_i
@@ -163,7 +168,8 @@ post '/lists/:list_id/todos' do
 
     erb :list
   else
-    @list[:todos] << { name: todo, completed: false }
+    todos = @list[:todos] 
+    todos << { id: next_id(todos), name: todo, completed: false }
     session[:success] = 'TODO Added'
 
     redirect "lists/#{@list_id}"
@@ -190,7 +196,7 @@ post '/lists/:list_id/todos/:todo_id/delete' do
   @list    = load_list(@list_id)
   todo_id  = params[:todo_id].to_i
 
-  @list[:todos].delete_at(todo_id)
+  @list[:todos].reject! { |todo| todo[:id] == todo_id }
   session[:success] = 'TODO Deleted'
 
   redirect "/lists/#{@list_id}"
