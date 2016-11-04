@@ -26,8 +26,8 @@ helpers do
   def sorted_lists(lists)
     complete, incomplete = lists.partition { |list| list_completed? list }
 
-    incomplete.each { |list| yield(lists.index(list), list) }
-    complete.each { |list| yield(lists.index(list), list) }
+    incomplete.each { |list| yield(list) }
+    complete.each { |list| yield(list) }
   end
 
   def sorted_todos(list)
@@ -76,8 +76,8 @@ def error_for_edit_list_name(old_name, new_name)
   end
 end
 
-def load_list(index)
-  list = session[:lists][index]
+def load_list(id)
+  list = session[:lists].find { |list_item| list_item[:id] == id }
   return list if list
 
   session[:error] = 'Sorry List does not exist'
@@ -99,7 +99,8 @@ post '/lists' do
 
     redirect '/lists/new'
   else
-    session[:lists] << { name: name, todos: [] }
+    lists = session[:lists]
+    lists << { id: next_id(lists), name: name, todos: [] }
     session[:success] = 'New List Created'
 
     redirect '/lists'
@@ -109,10 +110,11 @@ end
 # List Destroy
 post '/lists/:id/delete' do
   id = params[:id].to_i
-  session[:lists].delete_at(id)
+  session[:lists].reject! { |list_item| list_item[:id] == id }
 
-  if env["HTTP_X_REQUESTED_WITH"] == "XMLHttpRequest"
-    "/lists"
+  if env['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'
+    session[:success] = 'List XML Deleted'
+    '/lists'
   else
     session[:success] = 'List Deleted'
     redirect '/lists'
@@ -129,8 +131,8 @@ end
 
 # List Edit
 get '/lists/:id/edit' do
-  @id   = params[:id].to_i
-  @list = load_list(@id)
+  id    = params[:id].to_i
+  @list = load_list(id)
 
   erb :list_edit
 end
@@ -155,8 +157,8 @@ post '/lists/:id' do
   end
 end
 
-def next_id(todos)
-  max_id = todos.map{ |todo| todo[:id] }.max.to_i
+def next_id(elements)
+  max_id = elements.map { |todo| todo[:id] }.max.to_i
   max_id + 1
 end
 
@@ -172,7 +174,7 @@ post '/lists/:list_id/todos' do
 
     erb :list
   else
-    todos = @list[:todos] 
+    todos = @list[:todos]
     todos << { id: next_id(todos), name: todo, completed: false }
     session[:success] = 'TODO Added'
 
@@ -202,7 +204,7 @@ post '/lists/:list_id/todos/:todo_id/delete' do
 
   @list[:todos].reject! { |todo| todo[:id] == todo_id }
 
-  if env["HTTP_X_REQUESTED_WITH"] == "XMLHttpRequest"
+  if env['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'
     status 204
   else
     session[:success] = 'TODO Deleted'

@@ -3,8 +3,8 @@
 <% end %>
 
 <ul id='lists' >
-  <% sorted_lists(@lists) do |index, list| %>
-    <a href='/lists/<%= index %>'>
+  <% sorted_lists(@lists) do |list| %>
+    <a href='/lists/<%= list[:id] %>'>
       <li class='<%= 'complete' if list_completed? list %>'>
         <h2><%== list[:name] %></h2>
         <p><%= "#{todos_not_completed_size(list)}/#{todos_count(list)}" %></p>
