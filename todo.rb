@@ -110,9 +110,13 @@ end
 post '/lists/:id/delete' do
   id = params[:id].to_i
   session[:lists].delete_at(id)
-  session[:success] = 'List Deleted'
 
-  redirect '/lists'
+  if env["HTTP_X_REQUESTED_WITH"] == "XMLHttpRequest"
+    "/lists"
+  else
+    session[:success] = 'List Deleted'
+    redirect '/lists'
+  end
 end
 
 # List Show
@@ -181,10 +185,10 @@ post '/lists/:list_id/todos/:todo_id/completed' do
   @list_id = params[:list_id].to_i
   @list    = load_list(@list_id)
   todo_id  = params[:todo_id].to_i
-  todo     = @list[:todos][todo_id]
+  todo     = @list[:todos].find { |todo_item| todo_item[:id] == todo_id }
   value    = (params[:completed] == 'true')
 
-  todo[:completed] = value
+  todo[:completed]  = value
   session[:success] = "Todo: #{todo[:name]} updated"
 
   redirect "lists/#{@list_id}"
@@ -197,9 +201,13 @@ post '/lists/:list_id/todos/:todo_id/delete' do
   todo_id  = params[:todo_id].to_i
 
   @list[:todos].reject! { |todo| todo[:id] == todo_id }
-  session[:success] = 'TODO Deleted'
 
-  redirect "/lists/#{@list_id}"
+  if env["HTTP_X_REQUESTED_WITH"] == "XMLHttpRequest"
+    status 204
+  else
+    session[:success] = 'TODO Deleted'
+    redirect "/lists/#{@list_id}"
+  end
 end
 
 # Todo All Completed
